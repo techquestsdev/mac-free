@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Release
+    runs-on: macos-latest
+    outputs:
+      sha256: ${{ steps.sha.outputs.sha256 }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build
+        run: make
+
+      - name: Create tarball
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          mkdir -p release/macos-free-${VERSION}
+          cp bin/free release/macos-free-${VERSION}/
+          cp README.md LICENSE release/macos-free-${VERSION}/
+          cd release && tar -czvf macos-free-${VERSION}-darwin-arm64.tar.gz macos-free-${VERSION}
+
+      - name: Calculate SHA256
+        id: sha
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          SHA256=$(shasum -a 256 release/macos-free-${VERSION}-darwin-arm64.tar.gz | cut -d ' ' -f 1)
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+          echo "SHA256: $SHA256"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-tarball
+          path: release/*.tar.gz
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: release-tarball
+          path: ./release
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*.tar.gz
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  homebrew:
+    name: Update Homebrew Tap
+    runs-on: ubuntu-latest
+    needs: [build, release]
+    steps:
+      - name: Update Homebrew formula
+        uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          formula-name: macos-free
+          homebrew-tap: techquestsdev/homebrew-tap
+          download-url: https://github.com/techquestsdev/mac-free/releases/download/${{ github.ref_name }}/macos-free-${{ github.ref_name }}-darwin-arm64.tar.gz
+          download-sha256: ${{ needs.build.outputs.sha256 }}
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
