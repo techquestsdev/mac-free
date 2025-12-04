@@ -16,7 +16,7 @@ jobs:
       sha256: ${{ steps.sha.outputs.sha256 }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build
         run: make
