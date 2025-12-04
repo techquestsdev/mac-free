@@ -14,16 +14,21 @@ jobs:
     runs-on: macos-latest
     outputs:
       sha256: ${{ steps.sha.outputs.sha256 }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Get version
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Build
         run: make
 
       - name: Create tarball
         run: |
-          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${{ steps.version.outputs.version }}
           mkdir -p release/macos-free-${VERSION}
           cp bin/free release/macos-free-${VERSION}/
           cp README.md LICENSE release/macos-free-${VERSION}/
@@ -32,7 +37,7 @@ jobs:
       - name: Calculate SHA256
         id: sha
         run: |
-          VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${{ steps.version.outputs.version }}
           SHA256=$(shasum -a 256 release/macos-free-${VERSION}-darwin-arm64.tar.gz | cut -d ' ' -f 1)
           echo "sha256=$SHA256" >> $GITHUB_OUTPUT
           echo "SHA256: $SHA256"
@@ -67,12 +72,50 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build, release]
     steps:
-      - name: Update Homebrew formula
-        uses: mislav/bump-homebrew-formula-action@v3
+      - name: Checkout homebrew-tap
+        uses: actions/checkout@v6
         with:
-          formula-name: macos-free
-          homebrew-tap: techquestsdev/homebrew-tap
-          download-url: https://github.com/techquestsdev/mac-free/releases/download/${{ needs.build.outputs.version }}/macos-free-${{ needs.build.outputs.version }}-darwin-arm64.tar.gz
-          download-sha256: ${{ needs.build.outputs.sha256 }}
+          repository: techquestsdev/homebrew-tap
+          token: ${{ secrets.REPO_READ }}
+
+      - name: Create/Update Homebrew formula
         env:
-          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
+          VERSION: ${{ needs.build.outputs.version }}
+          SHA256: ${{ needs.build.outputs.sha256 }}
+        run: |
+          mkdir -p homebrew-tap/Formula
+          cat > homebrew-tap/Formula/macos-free.rb << 'EOF'
+          class MacosFree < Formula
+            desc "A 'free' command replacement for macOS - displays memory usage like Linux free"
+            homepage "https://github.com/techquestsdev/mac-free"
+            url "https://github.com/techquestsdev/mac-free/releases/download/${VERSION}/macos-free-${VERSION}-darwin-arm64.tar.gz"
+            sha256 "${SHA256}"
+            license "MIT"
+
+            def install
+              bin.install "free"
+            end
+
+            test do
+              system "#{bin}/free", "-V"
+            end
+          end
+          EOF
+
+          # Replace variables in the formula
+          sed -i "s|\${VERSION}|${VERSION}|g" homebrew-tap/Formula/macos-free.rb
+          sed -i "s|\${SHA256}|${SHA256}|g" homebrew-tap/Formula/macos-free.rb
+
+          cat homebrew-tap/Formula/macos-free.rb
+
+      - name: Commit and push formula
+        env:
+          HOMEBREW_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
+        run: |
+          cd homebrew-tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${HOMEBREW_TOKEN}@github.com/techquestsdev/homebrew-tap.git
+          git add Formula/macos-free.rb
+          git commit -m "Update macos-free to ${{ needs.build.outputs.version }}" || echo "No changes to commit"
+          git push
