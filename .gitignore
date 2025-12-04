@@ -1,0 +1,28 @@
+# Build artifacts
+bin/
+obj/
+*.o
+*.d
+
+# Debug builds
+*.dSYM/
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Archives
+*.tar.gz
+*.zip
+
+# Local test files
+release/
