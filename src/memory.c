@@ -1,7 +1,7 @@
 /*
  * memory.c - Memory information retrieval implementation
  *
- * Part of macos-free: A 'free' command replacement for macOS
+ * Part of mac-free: A 'free' command replacement for macOS
  * License: MIT
  */
 

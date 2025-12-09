@@ -1,7 +1,7 @@
 /*
  * utils.h - Utility definitions and macros
  *
- * Part of macos-free: A 'free' command replacement for macOS
+ * Part of mac-free: A 'free' command replacement for macOS
  * License: MIT
  */
 

@@ -1,4 +1,4 @@
-# Makefile for macos-free
+# Makefile for mac-free
 #
 # A 'free' command replacement for macOS
 # License: MIT
@@ -123,7 +123,7 @@ test: $(TARGET)
 
 # Help
 help:
-	@echo "macos-free Makefile"
+	@echo "mac-free Makefile"
 	@echo ""
 	@echo "Targets:"
 	@echo "  all       Build the project (default)"

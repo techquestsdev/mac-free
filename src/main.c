@@ -1,7 +1,7 @@
 /*
- * main.c - Entry point for macos-free
+ * main.c - Entry point for mac-free
  *
- * Part of macos-free: A 'free' command replacement for macOS
+ * Part of mac-free: A 'free' command replacement for macOS
  * License: MIT
  */
 

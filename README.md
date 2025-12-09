@@ -1,4 +1,4 @@
-# macos-free
+# mac-free
 
 A `free` command replacement for macOS that displays memory usage information similar to the Linux `free` command.
 

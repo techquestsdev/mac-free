@@ -1,7 +1,7 @@
 /*
  * memory.h - Memory information retrieval for macOS
  *
- * Part of macos-free: A 'free' command replacement for macOS
+ * Part of mac-free: A 'free' command replacement for macOS
  * License: MIT
  */
 

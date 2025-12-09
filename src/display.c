@@ -1,7 +1,7 @@
 /*
  * display.c - Output formatting and display implementation
  *
- * Part of macos-free: A 'free' command replacement for macOS
+ * Part of mac-free: A 'free' command replacement for macOS
  * License: MIT
  */
 

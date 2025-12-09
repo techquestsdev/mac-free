@@ -1,7 +1,7 @@
 /*
  * utils.c - Utility function implementations
  *
- * Part of macos-free: A 'free' command replacement for macOS
+ * Part of mac-free: A 'free' command replacement for macOS
  * License: MIT
  */
 

@@ -1,7 +1,7 @@
 /*
  * display.h - Output formatting and display functions
  *
- * Part of macos-free: A 'free' command replacement for macOS
+ * Part of mac-free: A 'free' command replacement for macOS
  * License: MIT
  */
 

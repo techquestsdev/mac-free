@@ -29,16 +29,16 @@ jobs:
       - name: Create tarball
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          mkdir -p release/macos-free-${VERSION}
-          cp bin/free release/macos-free-${VERSION}/
-          cp README.md LICENSE release/macos-free-${VERSION}/
-          cd release && tar -czvf macos-free-${VERSION}-darwin-arm64.tar.gz macos-free-${VERSION}
+          mkdir -p release/mac-free-${VERSION}
+          cp bin/free release/mac-free-${VERSION}/
+          cp README.md LICENSE release/mac-free-${VERSION}/
+          cd release && tar -czvf mac-free-${VERSION}-darwin-arm64.tar.gz mac-free-${VERSION}
 
       - name: Calculate SHA256
         id: sha
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          SHA256=$(shasum -a 256 release/macos-free-${VERSION}-darwin-arm64.tar.gz | cut -d ' ' -f 1)
+          SHA256=$(shasum -a 256 release/mac-free-${VERSION}-darwin-arm64.tar.gz | cut -d ' ' -f 1)
           echo "sha256=$SHA256" >> $GITHUB_OUTPUT
           echo "SHA256: $SHA256"
 
@@ -83,12 +83,11 @@ jobs:
           VERSION: ${{ needs.build.outputs.version }}
           SHA256: ${{ needs.build.outputs.sha256 }}
         run: |
-          mkdir -p homebrew-tap/Formula
-          cat > homebrew-tap/Formula/macos-free.rb << 'EOF'
+          cat > mac-free.rb << 'EOF'
           class MacosFree < Formula
             desc "A 'free' command replacement for macOS - displays memory usage like Linux free"
             homepage "https://github.com/techquestsdev/mac-free"
-            url "https://github.com/techquestsdev/mac-free/releases/download/${VERSION}/macos-free-${VERSION}-darwin-arm64.tar.gz"
+            url "https://github.com/techquestsdev/mac-free/releases/download/${VERSION}/mac-free-${VERSION}-darwin-arm64.tar.gz"
             sha256 "${SHA256}"
             license "MIT"
 
@@ -103,19 +102,18 @@ jobs:
           EOF
 
           # Replace variables in the formula
-          sed -i "s|\${VERSION}|${VERSION}|g" homebrew-tap/Formula/macos-free.rb
-          sed -i "s|\${SHA256}|${SHA256}|g" homebrew-tap/Formula/macos-free.rb
+          sed -i "s|\${VERSION}|${VERSION}|g" mac-free.rb
+          sed -i "s|\${SHA256}|${SHA256}|g" mac-free.rb
 
-          cat homebrew-tap/Formula/macos-free.rb
+          cat mac-free.rb
 
       - name: Commit and push formula
         env:
           HOMEBREW_TOKEN: ${{ secrets.HOMEBREW_TOKEN }}
         run: |
-          cd homebrew-tap
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${HOMEBREW_TOKEN}@github.com/techquestsdev/homebrew-tap.git
-          git add Formula/macos-free.rb
-          git commit -m "Update macos-free to ${{ needs.build.outputs.version }}" || echo "No changes to commit"
+          git add mac-free.rb
+          git commit -m "Update mac-free to ${{ needs.build.outputs.version }}" || echo "No changes to commit"
           git push
