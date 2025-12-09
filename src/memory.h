@@ -8,44 +8,51 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#include <stdint.h>
 #include <mach/mach.h>
+#include <stdint.h>
 
-/* ============================================================================
+/*
+ * ============================================================================
  * Type Definitions
- * ============================================================================ */
+ * ============================================================================
+ */
 
 /* Physical memory information */
-typedef struct {
-    uint64_t total;         /* Total physical memory */
-    uint64_t used;          /* Used memory (active + wired + compressed) */
-    uint64_t free;          /* Free memory */
-    uint64_t active;        /* Active pages */
-    uint64_t inactive;      /* Inactive pages */
-    uint64_t wired;         /* Wired (non-pageable) pages */
-    uint64_t compressed;    /* Compressed pages */
-    uint64_t cached;        /* Cached/purgeable pages */
-    uint64_t app_memory;    /* Memory used by applications */
-    uint64_t available;     /* Available memory (free + inactive + cached) */
+typedef struct
+{
+    uint64_t total;      /* Total physical memory */
+    uint64_t used;       /* Used memory (active + wired + compressed) */
+    uint64_t free;       /* Free memory */
+    uint64_t active;     /* Active pages */
+    uint64_t inactive;   /* Inactive pages */
+    uint64_t wired;      /* Wired (non-pageable) pages */
+    uint64_t compressed; /* Compressed pages */
+    uint64_t cached;     /* Cached/purgeable pages */
+    uint64_t app_memory; /* Memory used by applications */
+    uint64_t available;  /* Available memory (free + inactive + cached) */
 } mem_info_t;
 
 /* Swap/virtual memory information */
-typedef struct {
-    uint64_t total;         /* Total swap space */
-    uint64_t used;          /* Used swap space */
-    uint64_t free;          /* Free swap space */
+typedef struct
+{
+    uint64_t total; /* Total swap space */
+    uint64_t used;  /* Used swap space */
+    uint64_t free;  /* Free swap space */
 } swap_info_t;
 
 /* Combined system memory information */
-typedef struct {
-    mem_info_t  mem;        /* Physical memory */
-    swap_info_t swap;       /* Swap memory */
-    vm_size_t   page_size;  /* System page size */
+typedef struct
+{
+    mem_info_t  mem;       /* Physical memory */
+    swap_info_t swap;      /* Swap memory */
+    vm_size_t   page_size; /* System page size */
 } system_memory_t;
 
-/* ============================================================================
+/*
+ * ============================================================================
  * Function Prototypes
- * ============================================================================ */
+ * ============================================================================
+ */
 
 /**
  * Get system page size

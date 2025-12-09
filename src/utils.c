@@ -5,16 +5,21 @@
  * License: MIT
  */
 
-#include <stdio.h>
-#include <string.h>
 #include "utils.h"
 
-/* ============================================================================
- * Conversion Functions
- * ============================================================================ */
+#include <stdio.h>
+#include <string.h>
 
-double convert_unit(uint64_t bytes, unit_type_t unit) {
-    switch (unit) {
+/*
+ * ============================================================================
+ * Conversion Functions
+ * ============================================================================
+ */
+
+double convert_unit(uint64_t bytes, unit_type_t unit)
+{
+    switch (unit)
+    {
         case UNIT_KIBI:
             return (double)bytes / BYTES_PER_KB;
         case UNIT_MEBI:
@@ -38,44 +43,70 @@ double convert_unit(uint64_t bytes, unit_type_t unit) {
     }
 }
 
-void format_human(uint64_t bytes, char *buf, size_t bufsize) {
-    if (buf == NULL || bufsize == 0) {
+void format_human(uint64_t bytes, char *buf, size_t bufsize)
+{
+    if (buf == NULL || bufsize == 0)
+    {
         return;
     }
 
-    if (bytes >= BYTES_PER_GB) {
+    if (bytes >= BYTES_PER_GB)
+    {
         snprintf(buf, bufsize, "%.1fGi", (double)bytes / BYTES_PER_GB);
-    } else if (bytes >= BYTES_PER_MB) {
+    }
+    else if (bytes >= BYTES_PER_MB)
+    {
         snprintf(buf, bufsize, "%.1fMi", (double)bytes / BYTES_PER_MB);
-    } else if (bytes >= BYTES_PER_KB) {
+    }
+    else if (bytes >= BYTES_PER_KB)
+    {
         snprintf(buf, bufsize, "%.1fKi", (double)bytes / BYTES_PER_KB);
-    } else {
+    }
+    else
+    {
         snprintf(buf, bufsize, "%lluB", (unsigned long long)bytes);
     }
 }
 
-const char* get_unit_suffix(unit_type_t unit) {
-    switch (unit) {
-        case UNIT_BYTES: return "B";
-        case UNIT_KIBI:  return "Ki";
-        case UNIT_MEBI:  return "Mi";
-        case UNIT_GIBI:  return "Gi";
-        case UNIT_TEBI:  return "Ti";
-        case UNIT_KILO:  return "kB";
-        case UNIT_MEGA:  return "MB";
-        case UNIT_GIGA:  return "GB";
-        case UNIT_TERA:  return "TB";
-        case UNIT_HUMAN: return "";
-        default:         return "";
+const char *get_unit_suffix(unit_type_t unit)
+{
+    switch (unit)
+    {
+        case UNIT_BYTES:
+            return "B";
+        case UNIT_KIBI:
+            return "Ki";
+        case UNIT_MEBI:
+            return "Mi";
+        case UNIT_GIBI:
+            return "Gi";
+        case UNIT_TEBI:
+            return "Ti";
+        case UNIT_KILO:
+            return "kB";
+        case UNIT_MEGA:
+            return "MB";
+        case UNIT_GIGA:
+            return "GB";
+        case UNIT_TERA:
+            return "TB";
+        case UNIT_HUMAN:
+            return "";
+        default:
+            return "";
     }
 }
 
-/* ============================================================================
+/*
+ * ============================================================================
  * Options Functions
- * ============================================================================ */
+ * ============================================================================
+ */
 
-void init_options(options_t *opts) {
-    if (opts == NULL) {
+void init_options(options_t *opts)
+{
+    if (opts == NULL)
+    {
         return;
     }
 
@@ -87,11 +118,14 @@ void init_options(options_t *opts) {
     opts->lohi    = 0;
 }
 
-/* ============================================================================
+/*
+ * ============================================================================
  * Help and Version Functions
- * ============================================================================ */
+ * ============================================================================
+ */
 
-void print_usage(const char *prog_name) {
+void print_usage(const char *prog_name)
+{
     const char *name = prog_name ? prog_name : PROGRAM_NAME;
 
     printf("Usage: %s [options]\n", name);
@@ -130,9 +164,10 @@ void print_usage(const char *prog_name) {
     printf("\n");
 }
 
-void print_version(void) {
-    printf("%s %d.%d.%d\n", PROGRAM_NAME,
-           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+void print_version(void)
+{
+    printf("%s %d.%d.%d\n", PROGRAM_NAME, VERSION_MAJOR, VERSION_MINOR,
+           VERSION_PATCH);
     printf("A 'free' command replacement for macOS\n");
     printf("\n");
     printf("Copyright (c) 2024\n");
