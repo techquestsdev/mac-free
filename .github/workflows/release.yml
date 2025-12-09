@@ -84,7 +84,7 @@ jobs:
           SHA256: ${{ needs.build.outputs.sha256 }}
         run: |
           cat > mac-free.rb << 'EOF'
-          class MacosFree < Formula
+          class MacFree < Formula
             desc "A 'free' command replacement for macOS - displays memory usage like Linux free"
             homepage "https://github.com/techquestsdev/mac-free"
             url "https://github.com/techquestsdev/mac-free/releases/download/${VERSION}/mac-free-${VERSION}-darwin-arm64.tar.gz"
