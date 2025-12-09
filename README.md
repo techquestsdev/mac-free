@@ -37,10 +37,18 @@ make debug
 ## Installation
 
 ```shell
+git clone https://github.com/techquestsdev/mac-free.git
+cd mac-free
+
+# Build and install
+make
 sudo make install
+
+# or use Homebrew
+brew install techquestsdev/tap/mac-free
 ```
 
-This installs the free command to `/usr/local/bin/`. You can specify a different prefix:
+Installing from source will add `free` command to `/usr/local/bin/`. You can specify a different prefix:
 
 ```shell
 sudo make install PREFIX=/opt/local
