@@ -54,7 +54,7 @@ jobs:
     needs: [build]
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: release-tarball
           path: ./release
