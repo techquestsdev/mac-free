@@ -17,7 +17,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Get version
         id: version
@@ -73,7 +73,7 @@ jobs:
     needs: [build, release]
     steps:
       - name: Checkout homebrew-tap
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: techquestsdev/homebrew-tap
           token: ${{ secrets.REPO_READ }}
