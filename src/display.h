@@ -79,6 +79,13 @@ void print_memory_info(const system_memory_t *sys_mem, const options_t *opts);
 void print_separator(const options_t *opts);
 
 /**
+ * Print the macOS memory pressure line (kernel signal + available %).
+ *
+ * @param mem   Physical memory information
+ */
+void print_pressure(const mem_info_t *mem);
+
+/**
  * Print totals row
  *
  * @param mem   Physical memory information

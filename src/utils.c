@@ -110,12 +110,13 @@ void init_options(options_t *opts)
         return;
     }
 
-    opts->unit    = UNIT_KIBI;
-    opts->wide    = 0;
-    opts->seconds = 0;
-    opts->count   = -1;
-    opts->totals  = 0;
-    opts->lohi    = 0;
+    opts->unit     = UNIT_KIBI;
+    opts->wide     = 0;
+    opts->seconds  = 0;
+    opts->count    = -1;
+    opts->totals   = 0;
+    opts->lohi     = 0;
+    opts->pressure = 0;
 }
 
 /*
@@ -142,6 +143,8 @@ void print_usage(const char *prog_name)
     printf("  -t, --total         Show total for RAM + swap\n");
     printf("  -s N, --seconds N   Repeat printing every N seconds\n");
     printf("  -c N, --count N     Repeat printing N times, then exit\n");
+    printf(
+        "  -P, --pressure      Show macOS memory pressure (kernel signal)\n");
     printf("      --help          Display this help message\n");
     printf("  -V, --version       Display version information\n");
     printf("\n");

@@ -100,10 +100,15 @@ void print_numeric(const mem_info_t *mem, const swap_info_t *swap,
     }
     else
     {
-        /* "shared" - using compressed as approximation */
-        print_value(mem->compressed, opts);
-        /* "buff/cache" */
-        print_value(mem->cached + mem->inactive, opts);
+        /*
+         * "shared" - macOS has no simple equivalent of Linux Shmem/tmpfs
+         * accounting, so report 0 rather than a misleading value. Compressed
+         * memory (previously shown here) is anonymous, not shared, and is
+         * visible in the wide (-w) view.
+         */
+        print_value(0, opts);
+        /* "buff/cache" - purgeable + inactive + speculative file cache */
+        print_value(mem->cached + mem->inactive + mem->speculative, opts);
     }
     print_value(mem->available, opts);
     printf("\n");
@@ -189,6 +194,31 @@ void print_separator(const options_t *opts)
     putchar('\n');
 }
 
+void print_pressure(const mem_info_t *mem)
+{
+    const char *label;
+    switch (get_pressure_level())
+    {
+        case 1:
+            label = "normal";
+            break;
+        case 2:
+            label = "warning";
+            break;
+        case 4:
+            label = "critical";
+            break;
+        default:
+            label = "unknown";
+            break;
+    }
+
+    unsigned int avail_pct =
+        mem->total ? (unsigned int)((mem->available * 100) / mem->total) : 0;
+
+    printf("Pressure: %s (%u%% available)\n", label, avail_pct);
+}
+
 void print_memory_info(const system_memory_t *sys_mem, const options_t *opts)
 {
     print_header(opts);
@@ -205,5 +235,10 @@ void print_memory_info(const system_memory_t *sys_mem, const options_t *opts)
     if (opts->totals)
     {
         print_totals(&sys_mem->mem, &sys_mem->swap, opts);
+    }
+
+    if (opts->pressure)
+    {
+        print_pressure(&sys_mem->mem);
     }
 }
