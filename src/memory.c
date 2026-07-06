@@ -104,6 +104,9 @@ int get_memory_info(mem_info_t *mem)
     /* Purgeable memory (cached) */
     mem->cached = (uint64_t)vm_stats.purgeable_count * page_size;
 
+    /* Speculative read-ahead pages (reclaimable file cache) */
+    mem->speculative = (uint64_t)vm_stats.speculative_count * page_size;
+
     /*
      * Calculate used memory
      * Used = Active + Wired + Compressed
@@ -113,10 +116,10 @@ int get_memory_info(mem_info_t *mem)
 
     /*
      * Calculate available memory
-     * Available = Free + Inactive + Cached
+     * Available = Free + Inactive + Cached + Speculative
      * This represents memory that can be reclaimed if needed
      */
-    mem->available = mem->free + mem->inactive + mem->cached;
+    mem->available = mem->free + mem->inactive + mem->cached + mem->speculative;
 
     /*
      * App memory is roughly the active memory minus cached files
@@ -176,6 +179,20 @@ int get_system_memory(system_memory_t *sys_mem)
     }
 
     return 0;
+}
+
+int get_pressure_level(void)
+{
+    int    level  = 0;
+    size_t length = sizeof(level);
+
+    if (sysctlbyname("kern.memorystatus_vm_pressure_level", &level, &length,
+                     NULL, 0) != 0)
+    {
+        return -1;
+    }
+
+    return level;
 }
 
 double calculate_memory_pressure(const mem_info_t *mem)

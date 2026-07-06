@@ -66,6 +66,7 @@ static int parse_args(int argc, char *argv[], options_t *opts)
         {"seconds", required_argument, NULL, 's'},
         {"count", required_argument, NULL, 'c'},
         {"lohi", no_argument, NULL, 'l'},
+        {"pressure", no_argument, NULL, 'P'},
         {"help", no_argument, NULL, 'H'},
         {"version", no_argument, NULL, 'V'},
         {NULL, 0, NULL, 0}};
@@ -73,7 +74,7 @@ static int parse_args(int argc, char *argv[], options_t *opts)
     int opt;
     int option_index = 0;
 
-    while ((opt = getopt_long(argc, argv, "bkmghwts:c:lV", long_options,
+    while ((opt = getopt_long(argc, argv, "bkmghwts:c:lPV", long_options,
                               &option_index)) != -1)
     {
         switch (opt)
@@ -118,6 +119,9 @@ static int parse_args(int argc, char *argv[], options_t *opts)
                 break;
             case 'l':
                 opts->lohi = 1;
+                break;
+            case 'P':
+                opts->pressure = 1;
                 break;
             case 'H':
                 print_usage(argv[0]);

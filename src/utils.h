@@ -53,12 +53,13 @@ typedef enum
 /* Command-line options */
 typedef struct
 {
-    unit_type_t unit;    /* Output unit */
-    int         wide;    /* Wide output mode */
-    int         seconds; /* Refresh interval (0 = no refresh) */
-    int         count;   /* Number of iterations (-1 = infinite) */
-    int         totals;  /* Show totals line */
-    int         lohi;    /* Show low/high memory stats */
+    unit_type_t unit;     /* Output unit */
+    int         wide;     /* Wide output mode */
+    int         seconds;  /* Refresh interval (0 = no refresh) */
+    int         count;    /* Number of iterations (-1 = infinite) */
+    int         totals;   /* Show totals line */
+    int         lohi;     /* Show low/high memory stats */
+    int         pressure; /* Show macOS memory pressure line */
 } options_t;
 
 /*

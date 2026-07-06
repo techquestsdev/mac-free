@@ -20,16 +20,17 @@
 /* Physical memory information */
 typedef struct
 {
-    uint64_t total;      /* Total physical memory */
-    uint64_t used;       /* Used memory (active + wired + compressed) */
-    uint64_t free;       /* Free memory */
-    uint64_t active;     /* Active pages */
-    uint64_t inactive;   /* Inactive pages */
-    uint64_t wired;      /* Wired (non-pageable) pages */
-    uint64_t compressed; /* Compressed pages */
-    uint64_t cached;     /* Cached/purgeable pages */
-    uint64_t app_memory; /* Memory used by applications */
-    uint64_t available;  /* Available memory (free + inactive + cached) */
+    uint64_t total;       /* Total physical memory */
+    uint64_t used;        /* Used memory (active + wired + compressed) */
+    uint64_t free;        /* Free memory */
+    uint64_t active;      /* Active pages */
+    uint64_t inactive;    /* Inactive pages */
+    uint64_t wired;       /* Wired (non-pageable) pages */
+    uint64_t compressed;  /* Compressed pages */
+    uint64_t cached;      /* Cached/purgeable pages */
+    uint64_t speculative; /* Speculative (read-ahead file cache) pages */
+    uint64_t app_memory;  /* Memory used by applications */
+    uint64_t available;   /* Available (reclaimable) memory */
 } mem_info_t;
 
 /* Swap/virtual memory information */
@@ -107,5 +108,18 @@ int get_system_memory(system_memory_t *sys_mem);
  * @return      Memory pressure as a ratio (0.0 = no pressure, 1.0 = critical)
  */
 double calculate_memory_pressure(const mem_info_t *mem);
+
+/**
+ * Get the kernel's memory pressure level.
+ *
+ * Reads the real signal macOS itself uses
+ * (kern.memorystatus_vm_pressure_level), the same one Activity Monitor's
+ * pressure graph is based on. This exists because macOS relieves pressure via
+ * the in-RAM compressor before touching swap, so the Linux-style free/swap
+ * columns cannot reveal it.
+ *
+ * @return  1 = normal, 2 = warning, 4 = critical, or -1 on error
+ */
+int get_pressure_level(void);
 
 #endif /* MEMORY_H */

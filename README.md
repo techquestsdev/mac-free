@@ -73,6 +73,7 @@ free [options]
 | -t      | --total   | Show total for RAM + swap               |
 | -s N    | --seconds N | Repeat printing every N seconds       |
 | -c N    | --count N | Repeat printing N times, then exit      |
+| -P      | --pressure | Show macOS memory pressure (kernel signal) |
 | -V      | --version | Output version information and exit     |
 |         | --help    | Display help and exit                   |
 
@@ -83,7 +84,7 @@ free [options]
 ```txt
 $ free
               total        used        free      shared  buff/cache   available
-Mem:       16777216     8388608     2097152      524288     6291456     8388608
+Mem:       16777216     8388608     2097152           0     6291456     8388608
 Swap:       2097152      524288     1572864
 ```
 
@@ -92,7 +93,7 @@ Swap:       2097152      524288     1572864
 ```shell
 $ free -h
                total         used         free       shared   buff/cache    available
-Mem:          16.0Gi        8.0Gi        2.0Gi      512.0Mi        6.0Gi        8.0Gi
+Mem:          16.0Gi        8.0Gi        2.0Gi           0B        6.0Gi        8.0Gi
 Swap:          2.0Gi      512.0Mi        1.5Gi
 ```
 
@@ -117,12 +118,22 @@ free -h -s 2
 free -h -s 1 -c 5
 ```
 
+**Show macOS memory pressure (real kernel signal):**
+
+```txt
+$ free -h -P
+              total        used        free      shared  buff/cache   available
+Mem:         16.0Gi       8.0Gi       2.0Gi          0B       6.0Gi       8.0Gi
+Swap:         2.0Gi     512.0Mi       1.5Gi
+Pressure: normal (50% available)
+```
+
 **Show totals:**
 
 ```txt
 $ free -h -t
               total        used        free      shared  buff/cache   available
-Mem:         16.0Gi       8.0Gi       2.0Gi     512.0Mi       6.0Gi       8.0Gi
+Mem:         16.0Gi       8.0Gi       2.0Gi          0B       6.0Gi       8.0Gi
 Swap:         2.0Gi     512.0Mi       1.5Gi
 Total:       18.0Gi       8.5Gi       3.5Gi
 ```
@@ -136,8 +147,8 @@ Total:       18.0Gi       8.5Gi       3.5Gi
 | **total**      | Total installed physical memory                                     |
 | **used**       | Used memory(Active + Wired + Compressed)                            |
 | **free**       | Completely unused memory                                            |
-| **shared**     | Memory used by shared mappings                                      |
-| **buff/cache** | Memory used for file buffers and cache(mapped to Inactive on macOS) |
+| **shared**     | Always `0`: macOS exposes no system-wide shared-memory counter      |
+| **buff/cache** | Reclaimable file cache (Inactive + Purgeable + Speculative)         |
 | **available**  | Estimate of memory available for starting new applications          |
 
 ### Wide Output(macOS - specific)
@@ -155,23 +166,26 @@ This utility uses macOS - specific APIs to gather memory information:
 
 - **`host_statistics64()`** - Retrieves VM statistics including page counts for different memory states
 - **`sysctl()`** - Gets total physical memory and swap usage
+- **`sysctlbyname("kern.memorystatus_vm_pressure_level")`** - Real kernel memory-pressure level (for `-P`)
 - **`vm_page_size`** - System page size for converting page counts to bytes
 
 ### Memory Calculation Notes
 
-- **Used Memory** = Active + Wired + Compressed (speculative pages excluded)
-- **Available Memory** = Free + Inactive (approximation, as macOS can reclaim inactive pages)
-- **Shared Memory** = Pages marked as purgeable/shared in VM statistics
+- **Used Memory** = Active + Wired + Compressed
+- **Available Memory** = Free + Inactive + Purgeable + Speculative (approximation, as macOS can reclaim these pages)
+- **Shared Memory** = reported as `0`; macOS has no cheap system-wide shared-memory counter (unlike Linux `Shmem`). Deriving a real value would require summing the shared footprint across every task (as `top`/`libtop` do).
 
 ## Differences from Linux `free`
 
-1. **buff/cache**: On Linux, this shows buffer and cache memory separately. On macOS, we map this to inactive memory, which serves a similar purpose.
+1. **buff/cache**: On Linux, this shows buffer and cache memory separately. On macOS, we sum the reclaimable file cache: inactive + purgeable + speculative pages.
 
-2. **shared**: Linux tracks shared memory segments. On macOS, we report purgeable/shared page statistics.
+2. **shared**: Linux tracks shared memory segments (`Shmem`). macOS exposes no equivalent system-wide counter, so this is reported as `0` rather than a misleading approximation.
 
 3. **available**: Both systems estimate available memory, but the calculation differs due to different memory management strategies.
 
 4. **Wide mode**: Shows macOS-specific categories (compressed memory is unique to macOS).
+
+5. **Memory pressure** (`-P`): macOS relieves memory pressure with an in-RAM compressor *before* it touches swap, so the Linux-style `free`/`swap` columns can look healthy while the system is actually thrashing. `-P` prints the real kernel signal (`kern.memorystatus_vm_pressure_level` — the same one Activity Monitor uses): `normal`, `warning`, or `critical`.
 
 ## Uninstall
 
